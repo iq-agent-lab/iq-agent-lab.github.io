@@ -61,13 +61,127 @@
       50% { opacity: 1; }
     }
 
+    /* Shooting stars */
+    .shooting-stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .shooting-star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      box-shadow: 0 0 6px white;
+      opacity: 0;
+    }
+
+    .shooting-star::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: 0;
+      width: 80px;
+      height: 1px;
+      background: linear-gradient(to left, white, transparent);
+      transform: translateY(-50%);
+    }
+
+    @keyframes shoot {
+      0% {
+        opacity: 0;
+        transform: translate(0, 0) rotate(45deg);
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-300px, 300px) rotate(45deg);
+      }
+    }
+
+    /* Mission control signature - top left */
+    .mission-signature {
+      position: fixed;
+      top: 1.5rem;
+      left: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-text-tertiary);
+      line-height: 1.6;
+      z-index: 10;
+      pointer-events: none;
+      letter-spacing: 0.5px;
+    }
+
+    .mission-signature .symbols {
+      color: var(--color-sun);
+      margin-bottom: 4px;
+      letter-spacing: 4px;
+    }
+
+    .mission-signature .label {
+      color: var(--color-text-secondary);
+      font-weight: 500;
+    }
+
+    /* Mission control status - top right */
+    .mission-status {
+      position: fixed;
+      top: 1.5rem;
+      right: 1.5rem;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--color-text-tertiary);
+      line-height: 1.6;
+      z-index: 10;
+      pointer-events: none;
+      text-align: right;
+      letter-spacing: 0.5px;
+    }
+
+    .mission-status .live-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--color-active);
+      margin-right: 6px;
+      animation: live-pulse 1.5s ease-in-out infinite;
+      vertical-align: middle;
+      box-shadow: 0 0 6px var(--color-active);
+    }
+
+    @keyframes live-pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .mission-status .status-line {
+      color: var(--color-text-secondary);
+    }
+
+    @media (max-width: 640px) {
+      .mission-signature, .mission-status {
+        font-size: 9px;
+        top: 0.75rem;
+      }
+      .mission-signature { left: 0.75rem; }
+      .mission-status { right: 0.75rem; }
+    }
+
     /* Layout */
     .container {
       position: relative;
       z-index: 1;
       max-width: 1200px;
       margin: 0 auto;
-      padding: 4rem 2rem;
+      padding: 5rem 2rem 4rem;
     }
 
     /* Header */
@@ -110,12 +224,6 @@
       font-style: italic;
     }
 
-    .header-quote::before {
-      content: '// ';
-      color: var(--color-sun);
-      opacity: 0.6;
-    }
-
     /* Solar System */
     .solar-system {
       position: relative;
@@ -131,6 +239,20 @@
       display: block;
     }
 
+    .orbit-ring {
+      transition: stroke 0.4s ease, stroke-width 0.4s ease;
+    }
+
+    .orbit-ring.highlighted {
+      stroke: rgba(0, 217, 255, 0.4) !important;
+      stroke-width: 1 !important;
+    }
+
+    .orbit-ring.highlighted-coral {
+      stroke: rgba(204, 120, 92, 0.4) !important;
+      stroke-width: 1 !important;
+    }
+
     /* Planet info card */
     .planet-info {
       position: absolute;
@@ -144,7 +266,7 @@
       pointer-events: none;
       opacity: 0;
       transition: opacity 0.2s ease;
-      z-index: 10;
+      z-index: 100;
       transform: translate(-50%, calc(-100% - 16px));
     }
 
@@ -416,7 +538,7 @@
     /* Mobile adjustments */
     @media (max-width: 640px) {
       .container {
-        padding: 2rem 1rem;
+        padding: 4rem 1rem 2rem;
       }
       .solar-system {
         max-width: 500px;
@@ -467,7 +589,24 @@
 </head>
 <body>
 
+<!-- Mission control signature - top left -->
+<div class="mission-signature">
+  <div class="symbols">◆ ◇ ◆</div>
+  <div class="label">SOLAR SYSTEM v1.0</div>
+  <div>OPERATOR: e9ua1</div>
+  <div>SECTOR: iq-agent-lab</div>
+</div>
+
+<!-- Mission control status - top right -->
+<div class="mission-status">
+  <div><span class="live-dot"></span><span class="status-line">SYSTEM LIVE</span></div>
+  <div>TOOLS: 1/6 ACTIVE</div>
+  <div>ORBITS: 6</div>
+  <div>UPTIME: ∞</div>
+</div>
+
 <div class="stars" id="stars"></div>
+<div class="shooting-stars" id="shooting-stars"></div>
 
 <div class="container">
 
@@ -486,9 +625,12 @@
   <div class="solar-system">
     <svg viewBox="-300 -300 600 600" xmlns="http://www.w3.org/2000/svg">
       <!-- Orbit lines -->
-      <circle cx="0" cy="0" r="120" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5" />
-      <circle cx="0" cy="0" r="180" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5" />
-      <circle cx="0" cy="0" r="260" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" />
+      <circle class="orbit-ring" data-orbit="1" cx="0" cy="0" r="120" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5" />
+      <circle class="orbit-ring" data-orbit="2" cx="0" cy="0" r="180" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5" />
+      <circle class="orbit-ring" data-orbit="3" cx="0" cy="0" r="180" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5" style="display:none"/>
+      <circle class="orbit-ring" data-orbit="4" cx="0" cy="0" r="260" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" />
+      <circle class="orbit-ring" data-orbit="5" cx="0" cy="0" r="260" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" style="display:none"/>
+      <circle class="orbit-ring" data-orbit="6" cx="0" cy="0" r="260" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" style="display:none"/>
 
       <!-- Sun (iq-agent-lab) -->
       <g style="animation: pulse 4s ease-in-out infinite;">
@@ -668,7 +810,7 @@
       <a href="https://github.com/iq-agent-lab" target="_blank">github.com/iq-agent-lab</a>
     </p>
     <p style="margin-top: 8px; opacity: 0.6;">
-      // 모든 행성은 연결되어 있다.
+      모든 행성은 연결되어 있다.
     </p>
   </footer>
 
@@ -698,14 +840,38 @@
     starsContainer.appendChild(star);
   }
 
-  // Planets data
+  // Shooting stars - random intervals
+  const shootingStarsContainer = document.getElementById('shooting-stars');
+  function spawnShootingStar() {
+    const star = document.createElement('div');
+    star.className = 'shooting-star';
+    // Random starting position (top half of screen)
+    star.style.left = (Math.random() * 60 + 30) + '%';
+    star.style.top = (Math.random() * 30) + '%';
+    star.style.animation = `shoot ${1.5 + Math.random() * 1}s linear forwards`;
+    shootingStarsContainer.appendChild(star);
+
+    // Remove after animation
+    setTimeout(() => star.remove(), 3000);
+  }
+
+  // Spawn shooting star every 4-9 seconds
+  function shootingStarLoop() {
+    spawnShootingStar();
+    const nextDelay = 4000 + Math.random() * 5000;
+    setTimeout(shootingStarLoop, nextDelay);
+  }
+  setTimeout(shootingStarLoop, 2000); // Start after 2s
+
+  // Planets data — orbit assigned to actual rendered orbit ring
   const planets = [
     {
       name: 'iq-blogger',
       domain: '텍스트 · 기술 블로그',
       desc: 'Deep-dive 문서를 블로그 포스트로 자동 변환. iq-proof에서 운영 중.',
       status: 'active',
-      orbit: 1,
+      orbit: 1,           // animation
+      orbitRing: 1,       // visible ring (radius 120)
       size: 14,
       color: '#00d9ff',
       link: 'https://iq-proof.github.io',
@@ -716,6 +882,7 @@
       desc: '음악 작품 자동 생산 + 큐레이션 레이블 시스템.',
       status: 'planned',
       orbit: 2,
+      orbitRing: 2,       // ring at 180
       size: 11,
       color: '#6b7280',
     },
@@ -725,6 +892,7 @@
       desc: '소설·에세이 등 서사 콘텐츠 생성. 캐릭터 일관성 관리.',
       status: 'planned',
       orbit: 3,
+      orbitRing: 2,       // same ring at 180
       size: 11,
       color: '#6b7280',
     },
@@ -734,6 +902,7 @@
       desc: '스타일 일관된 비주얼 콘텐츠 생성 시스템.',
       status: 'planned',
       orbit: 4,
+      orbitRing: 4,       // ring at 260
       size: 9,
       color: '#6b7280',
     },
@@ -743,6 +912,7 @@
       desc: '짧은 영상 콘텐츠 자동 제작. 자막 동기화, 음질 검증.',
       status: 'planned',
       orbit: 5,
+      orbitRing: 4,       // same ring at 260
       size: 9,
       color: '#6b7280',
     },
@@ -752,6 +922,7 @@
       desc: '모든 도구의 출력을 큐레이션하고 다중 채널에 발행.',
       status: 'planned',
       orbit: 6,
+      orbitRing: 4,       // same ring at 260
       size: 10,
       color: '#6b7280',
     },
@@ -788,7 +959,7 @@
       dot.style.opacity = '0.6';
     }
 
-    // Hover label (always visible, small)
+    // Planet label
     const label = document.createElement('div');
     label.style.position = 'absolute';
     label.style.top = (planet.size / 2 + 8) + 'px';
@@ -823,11 +994,24 @@
       if (planet.status === 'active') {
         dot.style.transform = 'translate(-50%, -50%) scale(1.5)';
       }
+
+      // Highlight the orbit ring
+      const ring = document.querySelector(`.orbit-ring[data-orbit="${planet.orbitRing}"]`);
+      if (ring) {
+        const cls = planet.status === 'active' ? 'highlighted' : 'highlighted-coral';
+        ring.classList.add(cls);
+      }
     });
 
     dot.addEventListener('mouseleave', () => {
       infoCard.classList.remove('visible');
       dot.style.transform = 'translate(-50%, -50%)';
+
+      // Remove orbit highlight
+      const ring = document.querySelector(`.orbit-ring[data-orbit="${planet.orbitRing}"]`);
+      if (ring) {
+        ring.classList.remove('highlighted', 'highlighted-coral');
+      }
     });
 
     if (planet.link) {
