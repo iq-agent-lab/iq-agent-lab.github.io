@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IQ Agent Lab — Where Agents Orbit</title>
-  <meta name="description" content="에이전트 시스템으로 창작 영역을 자동화하는 1인 연구소. 6개의 행성, 1개의 살아있는 시스템." />
+  <meta name="description" content="에이전트 시스템으로 창작 영역을 자동화하는 1인 연구소. 6개의 행성, 2개의 살아있는 시스템." />
   <style>
     :root {
       --bg-deep: #050810;
@@ -20,6 +20,7 @@
       --color-violet: #a78bfa;
 
       --color-active: #00d9ff;
+      --color-active-coral: #e89578;
       --color-planned: #4b5563;
 
       --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -305,6 +306,10 @@
       color: var(--color-active);
     }
 
+    .planet-info-status.active-coral {
+      color: var(--color-active-coral);
+    }
+
     .planet-info-status.planned {
       color: var(--color-text-tertiary);
     }
@@ -362,6 +367,16 @@
       transform: translateY(-2px);
     }
 
+    .tool-card.active-coral {
+      border-color: rgba(204, 120, 92, 0.3);
+      background: rgba(204, 120, 92, 0.04);
+    }
+
+    .tool-card.active-coral:hover {
+      border-color: var(--color-active-coral);
+      transform: translateY(-2px);
+    }
+
     .tool-card.planned:hover {
       border-color: var(--color-border-strong);
     }
@@ -386,6 +401,11 @@
     .tool-card.active .tool-card-icon {
       background: rgba(0, 217, 255, 0.15);
       box-shadow: 0 0 12px rgba(0, 217, 255, 0.4);
+    }
+
+    .tool-card.active-coral .tool-card-icon {
+      background: rgba(204, 120, 92, 0.15);
+      box-shadow: 0 0 12px rgba(204, 120, 92, 0.4);
     }
 
     .tool-card.planned .tool-card-icon {
@@ -426,6 +446,11 @@
       color: var(--color-active);
     }
 
+    .tool-card-status.active-coral {
+      background: rgba(204, 120, 92, 0.15);
+      color: var(--color-active-coral);
+    }
+
     .tool-card-status.planned {
       background: rgba(255, 255, 255, 0.05);
       color: var(--color-text-tertiary);
@@ -436,8 +461,15 @@
       margin-left: 8px;
       font-family: var(--font-mono);
       font-size: 10px;
-      color: var(--color-active);
       text-decoration: none;
+    }
+
+    .tool-card.active a {
+      color: var(--color-active);
+    }
+
+    .tool-card.active-coral a {
+      color: var(--color-active-coral);
     }
 
     .tool-card a:hover {
@@ -555,29 +587,38 @@
     }
 
     /* Orbit animations - 행성 공전 */
-    @keyframes orbit-1 {
+    /* Orbit 1 (r=120) — two active planets, offset by 180° */
+    @keyframes orbit-1a {
       from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
       to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
     }
+    @keyframes orbit-1b {
+      from { transform: rotate(180deg) translateX(120px) rotate(-180deg); }
+      to { transform: rotate(540deg) translateX(120px) rotate(-540deg); }
+    }
+
+    /* Orbit 2 (r=180) — two planets, offset by 180° */
     @keyframes orbit-2 {
       from { transform: rotate(60deg) translateX(180px) rotate(-60deg); }
       to { transform: rotate(420deg) translateX(180px) rotate(-420deg); }
     }
     @keyframes orbit-3 {
-      from { transform: rotate(120deg) translateX(180px) rotate(-120deg); }
-      to { transform: rotate(480deg) translateX(180px) rotate(-480deg); }
+      from { transform: rotate(240deg) translateX(180px) rotate(-240deg); }
+      to { transform: rotate(600deg) translateX(180px) rotate(-600deg); }
     }
+
+    /* Orbit 4 (r=260) — three planets, offset by 120° */
     @keyframes orbit-4 {
       from { transform: rotate(0deg) translateX(260px) rotate(0deg); }
       to { transform: rotate(360deg) translateX(260px) rotate(-360deg); }
     }
     @keyframes orbit-5 {
-      from { transform: rotate(72deg) translateX(260px) rotate(-72deg); }
-      to { transform: rotate(432deg) translateX(260px) rotate(-432deg); }
+      from { transform: rotate(120deg) translateX(260px) rotate(-120deg); }
+      to { transform: rotate(480deg) translateX(260px) rotate(-480deg); }
     }
     @keyframes orbit-6 {
-      from { transform: rotate(144deg) translateX(260px) rotate(-144deg); }
-      to { transform: rotate(504deg) translateX(260px) rotate(-504deg); }
+      from { transform: rotate(240deg) translateX(260px) rotate(-240deg); }
+      to { transform: rotate(600deg) translateX(260px) rotate(-600deg); }
     }
 
     /* Pulse for sun */
@@ -592,7 +633,7 @@
 <!-- Mission control signature - top left -->
 <div class="mission-signature">
   <div class="symbols">◆ ◇ ◆</div>
-  <div class="label">SOLAR SYSTEM v1.0</div>
+  <div class="label">SOLAR SYSTEM v1.1</div>
   <div>OPERATOR: e9ua1</div>
   <div>SECTOR: iq-agent-lab</div>
 </div>
@@ -600,7 +641,7 @@
 <!-- Mission control status - top right -->
 <div class="mission-status">
   <div><span class="live-dot"></span><span class="status-line">SYSTEM LIVE</span></div>
-  <div>TOOLS: 1/6 ACTIVE</div>
+  <div>TOOLS: 2/6 ACTIVE</div>
   <div>ORBITS: 6</div>
   <div>UPTIME: ∞</div>
 </div>
@@ -616,7 +657,7 @@
     <h1>Where Agents Orbit</h1>
     <p class="header-tagline">
       에이전트 시스템으로 창작 영역을 자동화하는 1인 연구소.<br/>
-      6개의 행성, 1개의 살아있는 시스템.
+      6개의 행성, 2개의 살아있는 시스템.
     </p>
     <p class="header-quote">시스템이 스스로 운영되는 우주를 설계한다.</p>
   </header>
@@ -679,6 +720,25 @@
         <a href="https://iq-proof.github.io" target="_blank">iq-proof ↗</a>
       </div>
 
+      <!-- iq-leetbuddy -->
+      <div class="tool-card active-coral">
+        <div class="tool-card-header">
+          <div class="tool-card-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e89578" stroke-width="2">
+              <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-20 12 12)"/>
+              <circle cx="12" cy="12" r="4"/>
+            </svg>
+          </div>
+          <div class="tool-card-name">iq-leetbuddy</div>
+        </div>
+        <div class="tool-card-domain">학습 자동화 · LeetCode</div>
+        <div class="tool-card-desc">
+          LeetCode 풀이를 한국어로 번역, AI 회고 생성, GitHub에 atomic commit하는 데스크톱 에이전트.
+        </div>
+        <span class="tool-card-status active-coral">Active</span>
+        <a href="https://github.com/iq-agent-lab/iq-leetbuddy/releases/latest" target="_blank">Releases ↗</a>
+      </div>
+
       <!-- iq-label -->
       <div class="tool-card planned">
         <div class="tool-card-header">
@@ -693,7 +753,7 @@
         </div>
         <div class="tool-card-domain">음악 · 작곡·편곡</div>
         <div class="tool-card-desc">
-          음악 작품 자동 생산 + 큐레이션 레이블. 화성 검증, 구조 일관성.
+          음악 작품 자동 생산 + 큐레이션 레이블 시스템.
         </div>
         <span class="tool-card-status planned">Planned</span>
       </div>
@@ -870,19 +930,30 @@
       domain: '텍스트 · 기술 블로그',
       desc: 'Deep-dive 문서를 블로그 포스트로 자동 변환. iq-proof에서 운영 중.',
       status: 'active',
-      orbit: 1,           // animation
-      orbitRing: 1,       // visible ring (radius 120)
+      animation: 'orbit-1a',  // -90° start
+      orbitRing: 1,           // visible ring (radius 120)
       size: 14,
       color: '#00d9ff',
       link: 'https://iq-proof.github.io',
+    },
+    {
+      name: 'iq-leetbuddy',
+      domain: '학습 자동화 · LeetCode',
+      desc: 'LeetCode 풀이를 한국어로 번역하고 AI 회고 + GitHub atomic commit. v0.3.4 출하.',
+      status: 'active-coral',
+      animation: 'orbit-1b',  // +90° start (반대편 공전)
+      orbitRing: 1,
+      size: 13,
+      color: '#cc785c',
+      link: 'https://github.com/iq-agent-lab/iq-leetbuddy/releases/latest',
     },
     {
       name: 'iq-label',
       domain: '음악 · 작곡·편곡',
       desc: '음악 작품 자동 생산 + 큐레이션 레이블 시스템.',
       status: 'planned',
-      orbit: 2,
-      orbitRing: 2,       // ring at 180
+      animation: 'orbit-2',
+      orbitRing: 2,           // ring at 180
       size: 11,
       color: '#6b7280',
     },
@@ -891,8 +962,8 @@
       domain: '장형 글쓰기 · 소설',
       desc: '소설·에세이 등 서사 콘텐츠 생성. 캐릭터 일관성 관리.',
       status: 'planned',
-      orbit: 3,
-      orbitRing: 2,       // same ring at 180
+      animation: 'orbit-3',
+      orbitRing: 2,           // same ring at 180
       size: 11,
       color: '#6b7280',
     },
@@ -901,8 +972,8 @@
       domain: '이미지 · 일러스트',
       desc: '스타일 일관된 비주얼 콘텐츠 생성 시스템.',
       status: 'planned',
-      orbit: 4,
-      orbitRing: 4,       // ring at 260
+      animation: 'orbit-4',
+      orbitRing: 4,           // ring at 260
       size: 9,
       color: '#6b7280',
     },
@@ -911,8 +982,8 @@
       domain: '영상 · 미디어',
       desc: '짧은 영상 콘텐츠 자동 제작. 자막 동기화, 음질 검증.',
       status: 'planned',
-      orbit: 5,
-      orbitRing: 4,       // same ring at 260
+      animation: 'orbit-5',
+      orbitRing: 4,           // same ring at 260
       size: 9,
       color: '#6b7280',
     },
@@ -921,8 +992,8 @@
       domain: '통합 · 메타 도구',
       desc: '모든 도구의 출력을 큐레이션하고 다중 채널에 발행.',
       status: 'planned',
-      orbit: 6,
-      orbitRing: 4,       // same ring at 260
+      animation: 'orbit-6',
+      orbitRing: 4,           // same ring at 260
       size: 10,
       color: '#6b7280',
     },
@@ -939,7 +1010,12 @@
     planetEl.style.left = '50%';
     planetEl.style.width = '0';
     planetEl.style.height = '0';
-    planetEl.style.animation = `orbit-${planet.orbit} ${30 + planet.orbit * 8}s linear infinite`;
+
+    // 공전 속도: orbit ring이 같으면 속도 비슷하게, 다른 ring은 외곽일수록 느림
+    const speedBase = planet.orbitRing === 1 ? 36 :
+                      planet.orbitRing === 2 ? 50 : 70;
+    const speedJitter = (i % 3) * 4;
+    planetEl.style.animation = `${planet.animation} ${speedBase + speedJitter}s linear infinite`;
     planetEl.style.transformOrigin = 'center';
 
     // The planet itself (circle)
@@ -953,7 +1029,7 @@
     dot.style.cursor = planet.link ? 'pointer' : 'default';
     dot.style.transition = 'all 0.2s ease';
 
-    if (planet.status === 'active') {
+    if (planet.status === 'active' || planet.status === 'active-coral') {
       dot.style.boxShadow = `0 0 12px ${planet.color}, 0 0 24px ${planet.color}80`;
     } else {
       dot.style.opacity = '0.6';
@@ -967,7 +1043,13 @@
     label.style.transform = 'translateX(-50%)';
     label.style.fontSize = '9px';
     label.style.fontFamily = 'var(--font-mono)';
-    label.style.color = planet.status === 'active' ? planet.color : 'var(--color-text-tertiary)';
+    if (planet.status === 'active') {
+      label.style.color = planet.color;
+    } else if (planet.status === 'active-coral') {
+      label.style.color = '#e89578';
+    } else {
+      label.style.color = 'var(--color-text-tertiary)';
+    }
     label.style.whiteSpace = 'nowrap';
     label.style.pointerEvents = 'none';
     label.textContent = planet.name;
@@ -983,15 +1065,24 @@
       document.getElementById('info-domain').textContent = planet.domain;
       document.getElementById('info-desc').textContent = planet.desc;
       const statusEl = document.getElementById('info-status');
-      statusEl.textContent = planet.status === 'active' ? '● Active' : '○ Planned';
-      statusEl.className = 'planet-info-status ' + planet.status;
+
+      if (planet.status === 'active') {
+        statusEl.textContent = '● Active';
+        statusEl.className = 'planet-info-status active';
+      } else if (planet.status === 'active-coral') {
+        statusEl.textContent = '● Active';
+        statusEl.className = 'planet-info-status active-coral';
+      } else {
+        statusEl.textContent = '○ Planned';
+        statusEl.className = 'planet-info-status planned';
+      }
 
       const rect = dot.getBoundingClientRect();
       infoCard.style.left = rect.left + rect.width / 2 + 'px';
       infoCard.style.top = rect.top + 'px';
       infoCard.classList.add('visible');
 
-      if (planet.status === 'active') {
+      if (planet.status === 'active' || planet.status === 'active-coral') {
         dot.style.transform = 'translate(-50%, -50%) scale(1.5)';
       }
 
