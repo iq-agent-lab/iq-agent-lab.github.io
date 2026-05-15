@@ -4,24 +4,27 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>IQ Agent Lab — Where Agents Orbit</title>
-  <meta name="description" content="에이전트 시스템으로 창작 영역을 자동화하는 1인 연구소. 6개의 행성, 2개의 살아있는 시스템." />
+  <meta name="description" content="에이전트 시스템으로 창작과 학습 영역을 자동화하는 1인 연구소. 7개의 행성, 2개의 active system." />
   <style>
     :root {
-      --bg-deep: #050810;
-      --bg-mid: #0a0e1a;
+      --bg-deep: #02040b;
+      --bg-mid: #07111f;
+      --bg-panel: rgba(8, 13, 26, 0.72);
       --color-text-primary: #f3f4f6;
       --color-text-secondary: #9ca3af;
       --color-text-tertiary: #6b7280;
       --color-border-subtle: rgba(255, 255, 255, 0.08);
       --color-border-strong: rgba(255, 255, 255, 0.15);
 
-      --color-sun: #cc785c;
+      --color-sun: #ff8f70;
+      --color-amber: #ffd166;
       --color-cyan: #00d9ff;
       --color-violet: #a78bfa;
+      --color-rose: #ff7ab6;
+      --color-green: #86efac;
 
       --color-active: #00d9ff;
-      --color-active-coral: #e89578;
-      --color-planned: #4b5563;
+      --color-planned: #8a93a7;
 
       --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
       --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -33,13 +36,73 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     html, body {
-      background: radial-gradient(ellipse at center, var(--bg-mid) 0%, var(--bg-deep) 100%);
+      background:
+        radial-gradient(ellipse at 50% 0%, rgba(0, 217, 255, 0.14) 0%, transparent 42%),
+        linear-gradient(180deg, #02040b 0%, #050b16 48%, #02040b 100%);
       color: var(--color-text-primary);
       font-family: var(--font-sans);
       line-height: 1.6;
       overflow-x: hidden;
       min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.45), transparent 70%);
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 25;
+      pointer-events: none;
+      opacity: 0.12;
+      background:
+        radial-gradient(ellipse 130% 110% at center, transparent 42%, rgba(0, 0, 0, 0.58) 100%),
+        url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.8 0 0 0 0 0.86 0 0 0 0 0.95 0 0 0 1 0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");
+      mix-blend-mode: overlay;
+    }
+
+    ::selection {
+      background: rgba(0, 217, 255, 0.28);
+      color: white;
+    }
+
+    .cursor-light {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0;
+      filter: blur(16px);
+      transform: translate(-50%, -50%);
+      transition: opacity 0.4s ease, background 0.5s ease;
+      will-change: transform;
+      background:
+        radial-gradient(circle at 35% 50%, rgba(0, 217, 255, 0.16) 0%, rgba(0, 217, 255, 0.04) 38%, transparent 72%),
+        radial-gradient(circle at 65% 50%, rgba(255, 143, 112, 0.15) 0%, rgba(255, 143, 112, 0.04) 38%, transparent 72%);
+    }
+
+    .cursor-light.active {
+      opacity: 1;
     }
 
     /* Stars background */
@@ -55,6 +118,7 @@
       background: white;
       border-radius: 50%;
       animation: twinkle 3s ease-in-out infinite;
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.55);
     }
 
     @keyframes twinkle {
@@ -77,7 +141,7 @@
       height: 2px;
       background: white;
       border-radius: 50%;
-      box-shadow: 0 0 6px white;
+      box-shadow: 0 0 6px white, 0 0 18px rgba(0, 217, 255, 0.7);
       opacity: 0;
     }
 
@@ -88,7 +152,7 @@
       right: 0;
       width: 80px;
       height: 1px;
-      background: linear-gradient(to left, white, transparent);
+      background: linear-gradient(to left, rgba(255, 255, 255, 0.95), rgba(0, 217, 255, 0.45), transparent);
       transform: translateY(-50%);
     }
 
@@ -115,7 +179,7 @@
       font-size: 10px;
       color: var(--color-text-tertiary);
       line-height: 1.6;
-      z-index: 10;
+      z-index: 30;
       pointer-events: none;
       letter-spacing: 0.5px;
     }
@@ -140,7 +204,7 @@
       font-size: 10px;
       color: var(--color-text-tertiary);
       line-height: 1.6;
-      z-index: 10;
+      z-index: 30;
       pointer-events: none;
       text-align: right;
       letter-spacing: 0.5px;
@@ -176,19 +240,131 @@
       .mission-status { right: 0.75rem; }
     }
 
-    /* Layout */
-    .container {
+    /* Immersive hero */
+    .page-shell {
       position: relative;
       z-index: 1;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 5rem 2rem 4rem;
     }
 
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 4rem;
+    .hero {
+      position: relative;
+      min-height: min(920px, 92svh);
+      overflow: hidden;
+      isolation: isolate;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      background: #02040b;
+    }
+
+    .space-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 0;
+      cursor: grab;
+    }
+
+    .space-canvas:active {
+      cursor: grabbing;
+    }
+
+    .cosmic-scrim {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse at 58% 42%, transparent 0%, rgba(2, 4, 11, 0.18) 48%, rgba(2, 4, 11, 0.88) 100%),
+        linear-gradient(90deg, rgba(2, 4, 11, 0.88) 0%, rgba(2, 4, 11, 0.28) 45%, rgba(2, 4, 11, 0.7) 100%),
+        linear-gradient(180deg, rgba(2, 4, 11, 0.38) 0%, transparent 38%, rgba(2, 4, 11, 0.88) 100%);
+    }
+
+    .cosmic-scrim::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      opacity: 0.28;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 120px 120px;
+      transform: perspective(700px) rotateX(62deg) translateY(18%);
+      transform-origin: bottom;
+      mask-image: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent 70%);
+    }
+
+    .nova-ring {
+      position: absolute;
+      top: 50%;
+      left: 59%;
+      z-index: 1;
+      pointer-events: none;
+      border-radius: 50%;
+      border: 1px solid rgba(0, 217, 255, 0.12);
+      box-shadow:
+        0 0 70px rgba(0, 217, 255, 0.06),
+        inset 0 0 90px rgba(167, 139, 250, 0.055);
+      transform: translate(-50%, -50%);
+      animation: nova-ring-expand 10s ease-out infinite;
+      will-change: transform, opacity;
+    }
+
+    .nova-ring--2 {
+      border-color: rgba(255, 143, 112, 0.1);
+      animation-delay: -3.3s;
+    }
+
+    .nova-ring--3 {
+      border-color: rgba(167, 139, 250, 0.1);
+      animation-delay: -6.6s;
+    }
+
+    .nova-ring--1 {
+      width: min(46vw, 520px);
+      height: min(46vw, 520px);
+    }
+
+    .nova-ring--2 {
+      width: min(68vw, 820px);
+      height: min(68vw, 820px);
+    }
+
+    .nova-ring--3 {
+      width: min(92vw, 1180px);
+      height: min(92vw, 1180px);
+    }
+
+    @keyframes nova-ring-expand {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.58);
+      }
+      20% {
+        opacity: 0.78;
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.38);
+      }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 4;
+      width: min(1180px, 100%);
+      min-height: min(920px, 92svh);
+      margin: 0 auto;
+      padding: 7.5rem 2rem 5rem;
+      display: grid;
+      grid-template-columns: minmax(280px, 420px) minmax(360px, 1fr);
+      align-items: center;
+      gap: clamp(2rem, 6vw, 7rem);
+      pointer-events: none;
+    }
+
+    .hero-copy {
+      max-width: 430px;
     }
 
     .header-label {
@@ -199,76 +375,232 @@
       margin-bottom: 1rem;
     }
 
-    .header h1 {
-      font-size: clamp(2rem, 5vw, 3.5rem);
-      font-weight: 500;
-      letter-spacing: -0.025em;
-      margin-bottom: 1rem;
-      background: linear-gradient(135deg, var(--color-text-primary) 0%, var(--color-sun) 100%);
+    .hero-title {
+      font-size: clamp(3rem, 7vw, 6.8rem);
+      font-weight: 520;
+      line-height: 0.94;
+      letter-spacing: 0;
+      margin-bottom: 1.25rem;
+      background: linear-gradient(135deg, #ffffff 0%, #c9f5ff 38%, #ff9f7f 100%);
       -webkit-background-clip: text;
       background-clip: text;
       -webkit-text-fill-color: transparent;
+      text-wrap: balance;
+      filter: drop-shadow(0 10px 28px rgba(2, 4, 11, 0.88));
+    }
+
+    .hero-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.66);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+      text-shadow: 0 2px 18px rgba(2, 4, 11, 0.95);
+    }
+
+    .hero-kicker::before {
+      content: '';
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--color-active);
+      box-shadow: 0 0 12px var(--color-active), 0 0 26px rgba(0, 217, 255, 0.5);
     }
 
     .header-tagline {
-      font-size: 1rem;
-      color: var(--color-text-secondary);
+      font-size: clamp(0.98rem, 1.6vw, 1.15rem);
+      color: rgba(243, 244, 246, 0.78);
       max-width: 36rem;
-      margin: 0 auto 1.5rem;
-      line-height: 1.7;
+      line-height: 1.8;
+      margin-bottom: 1.4rem;
+      text-wrap: pretty;
+      text-shadow: 0 2px 18px rgba(2, 4, 11, 0.95);
     }
 
     .header-quote {
       font-family: var(--font-mono);
-      font-size: 0.85rem;
-      color: var(--color-text-tertiary);
-      font-style: italic;
+      font-size: 0.82rem;
+      color: rgba(255, 209, 102, 0.8);
+      margin-bottom: 1.35rem;
+      text-shadow: 0 2px 18px rgba(2, 4, 11, 0.95);
     }
 
-    /* Solar System */
-    .solar-system {
-      position: relative;
-      width: 100%;
-      aspect-ratio: 1;
-      max-width: 800px;
-      margin: 2rem auto 4rem;
+    .hero-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.7rem;
+      margin-bottom: 2rem;
+      pointer-events: auto;
     }
 
-    .solar-system svg {
-      width: 100%;
-      height: 100%;
+    .hero-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.58rem 0.82rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.32);
+      border-radius: 8px;
+      background: rgba(var(--accent-rgb), 0.09);
+      color: rgb(var(--accent-rgb));
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.6px;
+      text-decoration: none;
+      backdrop-filter: blur(10px);
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .hero-link:hover {
+      transform: translateY(-2px);
+      background: rgba(var(--accent-rgb), 0.16);
+      box-shadow: 0 12px 32px rgba(var(--accent-rgb), 0.18);
+    }
+
+    .hero-link span {
+      color: rgba(255, 255, 255, 0.68);
+    }
+
+    .orbit-console {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1px;
+      max-width: 390px;
+      border-top: 1px solid rgba(255, 255, 255, 0.14);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .orbit-console div {
+      padding: 0.85rem 0.75rem;
+      background: rgba(2, 4, 11, 0.54);
+    }
+
+    .orbit-console span,
+    .orbit-console strong {
       display: block;
+      font-family: var(--font-mono);
+      letter-spacing: 1px;
     }
 
-    .orbit-ring {
-      transition: stroke 0.4s ease, stroke-width 0.4s ease;
+    .orbit-console span {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.42);
+      margin-bottom: 4px;
     }
 
-    .orbit-ring.highlighted {
-      stroke: rgba(0, 217, 255, 0.4) !important;
-      stroke-width: 1 !important;
+    .orbit-console strong {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.88);
     }
 
-    .orbit-ring.highlighted-coral {
-      stroke: rgba(204, 120, 92, 0.4) !important;
-      stroke-width: 1 !important;
+    .hero-depth-spacer {
+      min-height: 420px;
+    }
+
+    .planet-label-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    .planet-label {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(2, 4, 11, 0.46);
+      backdrop-filter: blur(8px);
+      border-radius: 999px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.5px;
+      color: rgba(255, 255, 255, 0.68);
+      white-space: nowrap;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.2s ease, border-color 0.2s ease, color 0.2s ease, background 0.2s ease;
+      will-change: transform, opacity;
+    }
+
+    .planet-label::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--planet-accent, var(--color-planned));
+      box-shadow: 0 0 10px var(--planet-accent, var(--color-planned));
+    }
+
+    .planet-label.active,
+    .planet-label.focused {
+      color: white;
+      border-color: color-mix(in srgb, var(--planet-accent, white) 62%, transparent);
+      background: rgba(2, 4, 11, 0.68);
+    }
+
+    .planet-label.focused {
+      box-shadow: 0 0 24px color-mix(in srgb, var(--planet-accent, white) 24%, transparent);
+    }
+
+    .hero-bottom-line {
+      position: absolute;
+      left: 50%;
+      bottom: 1.1rem;
+      z-index: 5;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.38);
+      white-space: nowrap;
+    }
+
+    .hero-bottom-line::before,
+    .hero-bottom-line::after {
+      content: '';
+      width: min(12vw, 120px);
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.26));
+    }
+
+    .hero-bottom-line::after {
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.26), transparent);
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 4.5rem 2rem 4rem;
     }
 
     /* Planet info card */
     .planet-info {
-      position: absolute;
-      background: rgba(10, 14, 26, 0.95);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--color-border-strong);
+      position: fixed;
+      background: rgba(5, 10, 22, 0.78);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
       border-radius: 8px;
       padding: 1rem 1.25rem;
       min-width: 240px;
-      max-width: 280px;
+      max-width: 300px;
       pointer-events: none;
       opacity: 0;
-      transition: opacity 0.2s ease;
+      transition: opacity 0.2s ease, transform 0.2s ease;
       z-index: 100;
       transform: translate(-50%, calc(-100% - 16px));
+      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
 
     .planet-info.visible {
@@ -280,6 +612,7 @@
       font-size: 13px;
       font-weight: 500;
       margin-bottom: 4px;
+      color: var(--planet-accent, var(--color-text-primary));
     }
 
     .planet-info-domain {
@@ -306,17 +639,13 @@
       color: var(--color-active);
     }
 
-    .planet-info-status.active-coral {
-      color: var(--color-active-coral);
-    }
-
     .planet-info-status.planned {
       color: var(--color-text-tertiary);
     }
 
     /* Tools list */
     .tools-section {
-      margin-top: 6rem;
+      margin-top: 0;
       text-align: center;
     }
 
@@ -324,14 +653,14 @@
       font-family: var(--font-mono);
       font-size: 11px;
       letter-spacing: 2px;
-      color: var(--color-text-tertiary);
+      color: rgba(255, 209, 102, 0.78);
       margin-bottom: 0.5rem;
     }
 
     .section-title {
-      font-size: 1.5rem;
+      font-size: clamp(1.6rem, 2.4vw, 2.4rem);
       font-weight: 500;
-      letter-spacing: -0.015em;
+      letter-spacing: 0;
       margin-bottom: 0.5rem;
     }
 
@@ -344,48 +673,57 @@
 
     .tools-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 1rem;
       text-align: left;
     }
 
     .tool-card {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--color-border-subtle);
+      --accent-rgb: 138, 147, 167;
+      position: relative;
+      min-height: 205px;
+      background:
+        linear-gradient(145deg, rgba(var(--accent-rgb), 0.09), rgba(255, 255, 255, 0.018) 44%, rgba(255, 255, 255, 0.035)),
+        rgba(2, 4, 11, 0.42);
+      border: 1px solid rgba(var(--accent-rgb), 0.2);
       border-radius: 8px;
       padding: 1.25rem;
-      transition: all 0.2s ease;
+      overflow: hidden;
+      transition: transform 0.24s ease, border-color 0.24s ease, background 0.24s ease, box-shadow 0.24s ease;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .tool-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.12), transparent),
+        linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 34px;
+      opacity: 0.22;
     }
 
     .tool-card.active {
-      border-color: rgba(0, 217, 255, 0.3);
-      background: rgba(0, 217, 255, 0.04);
+      border-color: rgba(0, 217, 255, 0.36);
+      box-shadow: 0 20px 70px rgba(0, 217, 255, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
 
-    .tool-card.active:hover {
-      border-color: var(--color-active);
+    .tool-card:hover,
+    .tool-card.is-focused {
       transform: translateY(-2px);
-    }
-
-    .tool-card.active-coral {
-      border-color: rgba(204, 120, 92, 0.3);
-      background: rgba(204, 120, 92, 0.04);
-    }
-
-    .tool-card.active-coral:hover {
-      border-color: var(--color-active-coral);
-      transform: translateY(-2px);
-    }
-
-    .tool-card.planned:hover {
-      border-color: var(--color-border-strong);
+      border-color: rgba(var(--accent-rgb), 0.58);
+      box-shadow: 0 20px 70px rgba(var(--accent-rgb), 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
 
     .tool-card-header {
+      position: relative;
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 8px;
+      z-index: 1;
     }
 
     .tool-card-icon {
@@ -398,40 +736,45 @@
       flex-shrink: 0;
     }
 
-    .tool-card.active .tool-card-icon {
-      background: rgba(0, 217, 255, 0.15);
-      box-shadow: 0 0 12px rgba(0, 217, 255, 0.4);
+    .tool-card-icon svg {
+      stroke: rgb(var(--accent-rgb));
     }
 
-    .tool-card.active-coral .tool-card-icon {
-      background: rgba(204, 120, 92, 0.15);
-      box-shadow: 0 0 12px rgba(204, 120, 92, 0.4);
+    .tool-card.active .tool-card-icon {
+      background: rgba(var(--accent-rgb), 0.16);
+      box-shadow: 0 0 18px rgba(var(--accent-rgb), 0.45);
     }
 
     .tool-card.planned .tool-card-icon {
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(var(--accent-rgb), 0.12);
     }
 
     .tool-card-name {
       font-family: var(--font-mono);
       font-size: 13px;
       font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
     }
 
     .tool-card-domain {
+      position: relative;
       font-size: 11px;
-      color: var(--color-text-tertiary);
+      color: rgba(255, 255, 255, 0.42);
       margin-bottom: 8px;
+      z-index: 1;
     }
 
     .tool-card-desc {
+      position: relative;
       font-size: 12px;
       color: var(--color-text-secondary);
       line-height: 1.6;
       margin-bottom: 12px;
+      z-index: 1;
     }
 
     .tool-card-status {
+      position: relative;
       display: inline-block;
       font-family: var(--font-mono);
       font-size: 10px;
@@ -439,48 +782,173 @@
       text-transform: uppercase;
       padding: 3px 8px;
       border-radius: 4px;
+      z-index: 1;
     }
 
     .tool-card-status.active {
-      background: rgba(0, 217, 255, 0.15);
+      background: rgba(var(--accent-rgb), 0.15);
       color: var(--color-active);
     }
 
-    .tool-card-status.active-coral {
-      background: rgba(204, 120, 92, 0.15);
-      color: var(--color-active-coral);
-    }
-
     .tool-card-status.planned {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--color-text-tertiary);
+      background: rgba(var(--accent-rgb), 0.11);
+      color: rgba(255, 255, 255, 0.55);
     }
 
     .tool-card a {
+      position: relative;
       display: inline-block;
       margin-left: 8px;
       font-family: var(--font-mono);
       font-size: 10px;
-      text-decoration: none;
-    }
-
-    .tool-card.active a {
       color: var(--color-active);
-    }
-
-    .tool-card.active-coral a {
-      color: var(--color-active-coral);
+      text-decoration: none;
+      z-index: 1;
     }
 
     .tool-card a:hover {
       text-decoration: underline;
     }
 
+    .tool-card-feature {
+      position: relative;
+      z-index: 1;
+      margin: 0.7rem 0 0.85rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+    }
+
+    .tool-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid rgba(var(--accent-rgb), 0.24);
+      background: rgba(var(--accent-rgb), 0.075);
+      color: rgba(255, 255, 255, 0.62);
+      font-family: var(--font-mono);
+      font-size: 9px;
+      letter-spacing: 0.4px;
+      white-space: nowrap;
+    }
+
+    .section-shell {
+      margin-top: 6rem;
+      padding-top: 4rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      text-align: center;
+    }
+
+    .system-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 1px;
+      margin-top: 2rem;
+      background: rgba(255, 255, 255, 0.08);
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      text-align: left;
+    }
+
+    .system-step {
+      min-height: 150px;
+      padding: 1.05rem;
+      background:
+        radial-gradient(circle at top left, rgba(var(--accent-rgb), 0.13), transparent 58%),
+        rgba(2, 4, 11, 0.58);
+    }
+
+    .system-step-num,
+    .operation-meta {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: rgba(var(--accent-rgb), 0.86);
+      margin-bottom: 0.7rem;
+    }
+
+    .system-step-title,
+    .operation-name {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 0.45rem;
+    }
+
+    .system-step-desc,
+    .operation-desc {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--color-text-secondary);
+    }
+
+    .operation-list {
+      margin-top: 2rem;
+      display: grid;
+      gap: 0.75rem;
+      text-align: left;
+    }
+
+    .operation-row {
+      --accent-rgb: 138, 147, 167;
+      display: grid;
+      grid-template-columns: minmax(160px, 0.85fr) minmax(220px, 1.4fr) auto;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.05rem;
+      border: 1px solid rgba(var(--accent-rgb), 0.2);
+      border-radius: 8px;
+      background:
+        linear-gradient(90deg, rgba(var(--accent-rgb), 0.075), transparent 42%),
+        rgba(255, 255, 255, 0.026);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .operation-row:hover {
+      transform: translateY(-2px);
+      border-color: rgba(var(--accent-rgb), 0.5);
+      background:
+        linear-gradient(90deg, rgba(var(--accent-rgb), 0.12), transparent 48%),
+        rgba(255, 255, 255, 0.04);
+    }
+
+    .operation-status {
+      justify-self: end;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(var(--accent-rgb), 0.28);
+      background: rgba(var(--accent-rgb), 0.1);
+      color: rgb(var(--accent-rgb));
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.7px;
+      white-space: nowrap;
+    }
+
+    .leet-note {
+      margin: 2rem auto 0;
+      max-width: 720px;
+      padding: 1.15rem 1.25rem;
+      border: 1px solid rgba(255, 143, 112, 0.22);
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at top left, rgba(255, 143, 112, 0.12), transparent 58%),
+        rgba(255, 255, 255, 0.025);
+      color: var(--color-text-secondary);
+      font-size: 0.9rem;
+      line-height: 1.75;
+      text-align: left;
+    }
+
     /* Connected Labs */
     .labs-section {
       margin-top: 6rem;
       padding-top: 4rem;
-      border-top: 1px solid var(--color-border-subtle);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       text-align: center;
     }
 
@@ -492,19 +960,20 @@
     }
 
     .lab-card {
-      background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--color-border-subtle);
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.09);
       border-radius: 8px;
       padding: 1.25rem;
       text-align: left;
       text-decoration: none;
       color: inherit;
-      transition: all 0.2s ease;
+      transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
     }
 
     .lab-card:hover {
       transform: translateY(-2px);
-      background: rgba(255, 255, 255, 0.04);
+      background: rgba(255, 255, 255, 0.045);
+      border-color: rgba(255, 255, 255, 0.18);
     }
 
     .lab-card-dot {
@@ -551,7 +1020,7 @@
     .footer {
       margin-top: 6rem;
       padding-top: 3rem;
-      border-top: 1px solid var(--color-border-subtle);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       text-align: center;
       font-family: var(--font-mono);
       font-size: 11px;
@@ -567,14 +1036,99 @@
       text-decoration: underline;
     }
 
+    .fallback-orbit {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: min(72vw, 560px);
+      aspect-ratio: 1;
+      transform: translate(-50%, -48%) rotateX(68deg) rotateZ(-18deg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .no-webgl .fallback-orbit {
+      opacity: 1;
+      animation: fallback-spin 28s linear infinite;
+    }
+
+    .fallback-orbit::before,
+    .fallback-orbit::after {
+      content: '';
+      position: absolute;
+      inset: 18%;
+      border: 1px solid rgba(0, 217, 255, 0.18);
+      border-radius: 50%;
+    }
+
+    .fallback-orbit::after {
+      inset: 36%;
+      border-color: rgba(255, 143, 112, 0.22);
+    }
+
+    @keyframes fallback-spin {
+      from { transform: translate(-50%, -48%) rotateX(68deg) rotateZ(-18deg); }
+      to { transform: translate(-50%, -48%) rotateX(68deg) rotateZ(342deg); }
+    }
+
     /* Mobile adjustments */
     @media (max-width: 640px) {
+      .hero {
+        min-height: 84svh;
+      }
+
+      .hero-content {
+        min-height: 84svh;
+        grid-template-columns: 1fr;
+        align-items: start;
+        padding: 5.4rem 1rem 3.4rem;
+        gap: 1.5rem;
+      }
+
+      .hero-copy {
+        max-width: 100%;
+      }
+
+      .hero-title {
+        font-size: clamp(2.65rem, 18vw, 4.8rem);
+      }
+
+      .header-tagline {
+        max-width: 21rem;
+      }
+
+      .orbit-console {
+        max-width: none;
+      }
+
+      .hero-depth-spacer {
+        min-height: 18svh;
+      }
+
+      .hero-links {
+        gap: 0.5rem;
+      }
+
+      .hero-link {
+        font-size: 0.66rem;
+        padding: 0.5rem 0.65rem;
+      }
+
+      .nova-ring {
+        left: 66%;
+      }
+
+      .planet-label {
+        font-size: 9px;
+        padding: 4px 7px;
+      }
+
       .container {
-        padding: 4rem 1rem 2rem;
+        padding: 3.5rem 1rem 2rem;
       }
-      .solar-system {
-        max-width: 500px;
-      }
+
       .planet-info {
         position: fixed;
         bottom: 1rem;
@@ -584,47 +1138,38 @@
         max-width: none;
         transform: none;
       }
+
+      .tools-grid,
+      .labs-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .system-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .operation-row {
+        grid-template-columns: 1fr;
+        gap: 0.55rem;
+      }
+
+      .operation-status {
+        justify-self: start;
+      }
     }
 
-    /* Orbit animations - 행성 공전 */
-    /* Orbit 1 (r=120) — two active planets, offset by 180° */
-    @keyframes orbit-1a {
-      from { transform: rotate(0deg) translateX(120px) rotate(0deg); }
-      to { transform: rotate(360deg) translateX(120px) rotate(-360deg); }
-    }
-    @keyframes orbit-1b {
-      from { transform: rotate(180deg) translateX(120px) rotate(-180deg); }
-      to { transform: rotate(540deg) translateX(120px) rotate(-540deg); }
-    }
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
 
-    /* Orbit 2 (r=180) — two planets, offset by 180° */
-    @keyframes orbit-2 {
-      from { transform: rotate(60deg) translateX(180px) rotate(-60deg); }
-      to { transform: rotate(420deg) translateX(180px) rotate(-420deg); }
-    }
-    @keyframes orbit-3 {
-      from { transform: rotate(240deg) translateX(180px) rotate(-240deg); }
-      to { transform: rotate(600deg) translateX(180px) rotate(-600deg); }
-    }
-
-    /* Orbit 4 (r=260) — three planets, offset by 120° */
-    @keyframes orbit-4 {
-      from { transform: rotate(0deg) translateX(260px) rotate(0deg); }
-      to { transform: rotate(360deg) translateX(260px) rotate(-360deg); }
-    }
-    @keyframes orbit-5 {
-      from { transform: rotate(120deg) translateX(260px) rotate(-120deg); }
-      to { transform: rotate(480deg) translateX(260px) rotate(-480deg); }
-    }
-    @keyframes orbit-6 {
-      from { transform: rotate(240deg) translateX(260px) rotate(-240deg); }
-      to { transform: rotate(600deg) translateX(260px) rotate(-600deg); }
-    }
-
-    /* Pulse for sun */
-    @keyframes pulse {
-      0%, 100% { filter: drop-shadow(0 0 12px var(--color-sun)) drop-shadow(0 0 24px rgba(204, 120, 92, 0.5)); }
-      50% { filter: drop-shadow(0 0 20px var(--color-sun)) drop-shadow(0 0 40px rgba(204, 120, 92, 0.7)); }
+      .cursor-light {
+        display: none;
+      }
     }
   </style>
 </head>
@@ -641,66 +1186,79 @@
 <!-- Mission control status - top right -->
 <div class="mission-status">
   <div><span class="live-dot"></span><span class="status-line">SYSTEM LIVE</span></div>
-  <div>TOOLS: 2/6 ACTIVE</div>
-  <div>ORBITS: 6</div>
+  <div>TOOLS: 2/7 ACTIVE</div>
+  <div>ORBITS: 7</div>
   <div>UPTIME: ∞</div>
 </div>
 
 <div class="stars" id="stars"></div>
 <div class="shooting-stars" id="shooting-stars"></div>
+<div class="cursor-light" id="cursor-light" aria-hidden="true"></div>
 
-<div class="container">
+<div class="page-shell">
 
-  <!-- Header -->
-  <header class="header">
-    <div class="header-label">◈ IQ AGENT LAB</div>
-    <h1>Where Agents Orbit</h1>
-    <p class="header-tagline">
-      에이전트 시스템으로 창작 영역을 자동화하는 1인 연구소.<br/>
-      6개의 행성, 2개의 살아있는 시스템.
-    </p>
-    <p class="header-quote">시스템이 스스로 운영되는 우주를 설계한다.</p>
-  </header>
+  <!-- Immersive 3D Hero -->
+  <section class="hero" aria-label="IQ Agent Lab 3D orbital system">
+    <canvas id="space-scene" class="space-canvas"></canvas>
+    <div class="nova-ring nova-ring--1" aria-hidden="true"></div>
+    <div class="nova-ring nova-ring--2" aria-hidden="true"></div>
+    <div class="nova-ring nova-ring--3" aria-hidden="true"></div>
+    <div class="cosmic-scrim"></div>
+    <div class="fallback-orbit" aria-hidden="true"></div>
+    <div class="planet-label-layer" id="planet-label-layer" aria-hidden="true"></div>
 
-  <!-- Solar System -->
-  <div class="solar-system">
-    <svg viewBox="-300 -300 600 600" xmlns="http://www.w3.org/2000/svg">
-      <!-- Orbit lines -->
-      <circle class="orbit-ring" data-orbit="1" cx="0" cy="0" r="120" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="0.5" />
-      <circle class="orbit-ring" data-orbit="2" cx="0" cy="0" r="180" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5" />
-      <circle class="orbit-ring" data-orbit="3" cx="0" cy="0" r="180" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="0.5" style="display:none"/>
-      <circle class="orbit-ring" data-orbit="4" cx="0" cy="0" r="260" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" />
-      <circle class="orbit-ring" data-orbit="5" cx="0" cy="0" r="260" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" style="display:none"/>
-      <circle class="orbit-ring" data-orbit="6" cx="0" cy="0" r="260" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="0.5" style="display:none"/>
+    <div class="hero-content">
+      <header class="hero-copy">
+        <div class="header-label">◈ IQ AGENT LAB</div>
+        <div class="hero-kicker">Where Agents Orbit</div>
+        <h1 class="hero-title">IQ Agent Lab</h1>
+        <p class="header-tagline">
+          에이전트 시스템으로 창작과 학습 영역을 자동화하는 1인 연구소.<br/>
+          7개의 행성, 2개의 active system.
+        </p>
+        <p class="header-quote">검증 가능하고 큐레이션 가능한 운영 시스템을 만든다.</p>
+        <div class="hero-links" aria-label="Active systems">
+          <a class="hero-link" href="https://iq-proof.github.io" target="_blank" rel="noopener noreferrer" style="--accent-rgb: 0, 217, 255;">
+            iq-blogger <span>iq-proof</span>
+          </a>
+          <a class="hero-link" href="https://github.com/iq-agent-lab/iq-leetbuddy/releases/latest" target="_blank" rel="noopener noreferrer" style="--accent-rgb: 255, 143, 112;">
+            iq-leetbuddy <span>v0.8.0</span>
+          </a>
+        </div>
+        <div class="orbit-console" aria-label="Mission telemetry">
+          <div>
+            <span>ACTIVE WORLDS</span>
+            <strong>02 / 07</strong>
+          </div>
+          <div>
+            <span>ORBIT MODE</span>
+            <strong>3D LIVE</strong>
+          </div>
+          <div>
+            <span>CORE</span>
+            <strong>AGENT LAB</strong>
+          </div>
+        </div>
+      </header>
+      <div class="hero-depth-spacer" aria-hidden="true"></div>
+    </div>
 
-      <!-- Sun (iq-agent-lab) -->
-      <g style="animation: pulse 4s ease-in-out infinite;">
-        <circle cx="0" cy="0" r="32" fill="#cc785c" opacity="0.2"/>
-        <circle cx="0" cy="0" r="20" fill="#cc785c" opacity="0.4"/>
-        <circle cx="0" cy="0" r="12" fill="#e89578"/>
-        <text x="0" y="55" text-anchor="middle" fill="#cc785c"
-              font-family="var(--font-mono)" font-size="10" letter-spacing="1px"
-              style="font-weight: 500;">
-          iq-agent-lab
-        </text>
-      </g>
-    </svg>
+    <div class="hero-bottom-line">TOOLS CONSTELLATION</div>
+  </section>
 
-    <!-- Planets (HTML overlay for clickability) -->
-    <div id="planets"></div>
-  </div>
+  <main class="container">
 
   <!-- Tools Section -->
   <section class="tools-section">
     <div class="section-label">◈ TOOLS</div>
-    <h2 class="section-title">Six Worlds, One System</h2>
+    <h2 class="section-title">Seven Worlds, One System</h2>
     <p class="section-desc">
-      각 도구는 독립적으로 작동하는 행성이지만, 공통의 검증·재시도·큐레이션 패턴을 공유합니다.
+      각 도구는 독립적으로 작동하는 행성이지만, 공통의 컨스트레인트·검증·복구·큐레이션 패턴을 공유합니다.
     </p>
 
     <div class="tools-grid">
       <!-- iq-blogger -->
-      <div class="tool-card active">
+      <div class="tool-card active" data-planet="iq-blogger" style="--accent-rgb: 0, 217, 255;">
         <div class="tool-card-header">
           <div class="tool-card-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00d9ff" stroke-width="2">
@@ -716,31 +1274,46 @@
         <div class="tool-card-desc">
           Deep-dive 문서를 블로그 포스트로 자동 변환. 11개 컨스트레인트 + Zod 검증 + 3회 재시도.
         </div>
+        <div class="tool-card-feature">
+          <span class="tool-chip">MDX output</span>
+          <span class="tool-chip">Zod validate</span>
+          <span class="tool-chip">iq-proof live</span>
+        </div>
         <span class="tool-card-status active">Active</span>
         <a href="https://iq-proof.github.io" target="_blank">iq-proof ↗</a>
       </div>
 
       <!-- iq-leetbuddy -->
-      <div class="tool-card active-coral">
+      <div class="tool-card active" data-planet="iq-leetbuddy" style="--accent-rgb: 255, 143, 112;">
         <div class="tool-card-header">
           <div class="tool-card-icon">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e89578" stroke-width="2">
-              <ellipse cx="12" cy="12" rx="10" ry="4" transform="rotate(-20 12 12)"/>
-              <circle cx="12" cy="12" r="4"/>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff8f70" stroke-width="2">
+              <rect x="3" y="4" width="18" height="14" rx="2"/>
+              <path d="M8 20h8"/>
+              <path d="M12 18v2"/>
+              <path d="M8 9l-2 2 2 2"/>
+              <path d="M16 9l2 2-2 2"/>
+              <path d="M13 8l-2 6"/>
             </svg>
           </div>
           <div class="tool-card-name">iq-leetbuddy</div>
         </div>
-        <div class="tool-card-domain">학습 자동화 · LeetCode</div>
+        <div class="tool-card-domain">학습 자동화 · LeetCode 풀이</div>
         <div class="tool-card-desc">
-          LeetCode 풀이를 한국어로 번역, AI 회고 생성, GitHub에 atomic commit하는 데스크톱 에이전트.
+          풀이를 한국어로 번역하고 AI 회고를 붙여 GitHub에 자동 정리하는 데스크톱 에이전트.
         </div>
-        <span class="tool-card-status active-coral">Active</span>
-        <a href="https://github.com/iq-agent-lab/iq-leetbuddy/releases/latest" target="_blank">Releases ↗</a>
+        <div class="tool-card-feature">
+          <span class="tool-chip">Accepted check</span>
+          <span class="tool-chip">atomic commit</span>
+          <span class="tool-chip">OS keychain</span>
+          <span class="tool-chip">auto builds</span>
+        </div>
+        <span class="tool-card-status active">Active</span>
+        <a href="https://github.com/iq-agent-lab/iq-leetbuddy/releases/latest" target="_blank">latest release ↗</a>
       </div>
 
       <!-- iq-label -->
-      <div class="tool-card planned">
+      <div class="tool-card planned" data-planet="iq-label" style="--accent-rgb: 255, 209, 102;">
         <div class="tool-card-header">
           <div class="tool-card-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
@@ -753,13 +1326,13 @@
         </div>
         <div class="tool-card-domain">음악 · 작곡·편곡</div>
         <div class="tool-card-desc">
-          음악 작품 자동 생산 + 큐레이션 레이블 시스템.
+          음악 작품 자동 생산 + 큐레이션 레이블. 화성 검증, 구조 일관성.
         </div>
         <span class="tool-card-status planned">Planned</span>
       </div>
 
       <!-- iq-writer -->
-      <div class="tool-card planned">
+      <div class="tool-card planned" data-planet="iq-writer" style="--accent-rgb: 255, 122, 182;">
         <div class="tool-card-header">
           <div class="tool-card-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
@@ -777,7 +1350,7 @@
       </div>
 
       <!-- iq-painter -->
-      <div class="tool-card planned">
+      <div class="tool-card planned" data-planet="iq-painter" style="--accent-rgb: 134, 239, 172;">
         <div class="tool-card-header">
           <div class="tool-card-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
@@ -798,7 +1371,7 @@
       </div>
 
       <!-- iq-studio -->
-      <div class="tool-card planned">
+      <div class="tool-card planned" data-planet="iq-studio" style="--accent-rgb: 96, 165, 250;">
         <div class="tool-card-header">
           <div class="tool-card-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
@@ -816,7 +1389,7 @@
       </div>
 
       <!-- iq-curator -->
-      <div class="tool-card planned">
+      <div class="tool-card planned" data-planet="iq-curator" style="--accent-rgb: 167, 139, 250;">
         <div class="tool-card-header">
           <div class="tool-card-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2">
@@ -832,6 +1405,86 @@
           다도메인 콘텐츠 큐레이션 + 발행 오케스트레이션. 모든 도구 통합.
         </div>
         <span class="tool-card-status planned">Planned</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- System Loop -->
+  <section class="section-shell">
+    <div class="section-label">◈ BUILD METHOD</div>
+    <h2 class="section-title">Study, Constrain, Generate, Validate, Curate</h2>
+    <p class="section-desc">
+      도메인이 텍스트든 학습 자동화든, 같은 운영 사이클 위에서 도구가 자랍니다.
+    </p>
+
+    <div class="system-grid" aria-label="Build method">
+      <div class="system-step" style="--accent-rgb: 0, 217, 255;">
+        <div class="system-step-num">01 · STUDY</div>
+        <div class="system-step-title">도메인 분석</div>
+        <div class="system-step-desc">사용 패턴과 실패 지점을 먼저 수집해 도구가 해결할 경계를 정합니다.</div>
+      </div>
+      <div class="system-step" style="--accent-rgb: 255, 209, 102;">
+        <div class="system-step-num">02 · CONSTRAIN</div>
+        <div class="system-step-title">규칙을 코드로</div>
+        <div class="system-step-desc">출력 형식, 품질 기준, 복구 가능한 에러를 명시적인 제약으로 고정합니다.</div>
+      </div>
+      <div class="system-step" style="--accent-rgb: 255, 143, 112;">
+        <div class="system-step-num">03 · GENERATE</div>
+        <div class="system-step-title">AI 양산</div>
+        <div class="system-step-desc">번역, 회고, 포스트 변환처럼 반복 가능한 작업을 스트리밍으로 실행합니다.</div>
+      </div>
+      <div class="system-step" style="--accent-rgb: 134, 239, 172;">
+        <div class="system-step-num">04 · VALIDATE</div>
+        <div class="system-step-title">검증과 복구</div>
+        <div class="system-step-desc">Zod schema, Accepted 확인, 친절한 에러와 자동 복구로 실패를 운영 데이터로 바꿉니다.</div>
+      </div>
+      <div class="system-step" style="--accent-rgb: 167, 139, 250;">
+        <div class="system-step-num">05 · CURATE</div>
+        <div class="system-step-title">사람의 최종 판단</div>
+        <div class="system-step-desc">AI는 일관성을 만들고, 사람은 방향과 품질을 보증합니다.</div>
+      </div>
+    </div>
+
+    <p class="leet-note">
+      iq-leetbuddy는 이 사이클이 데스크톱 환경에서도 작동한다는 첫 사례입니다.
+      LeetCode Accepted 확인, streaming 번역과 회고, draft 저장, atomic commit, root README 인덱스 갱신까지 하나의 로컬 에이전트 루프로 묶었습니다.
+    </p>
+  </section>
+
+  <!-- Live Operations -->
+  <section class="section-shell">
+    <div class="section-label">◈ LIVE OPERATIONS</div>
+    <h2 class="section-title">Proof Is The First Metric</h2>
+    <p class="section-desc">
+      각 운영 시스템은 도구가 실제로 작동한다는 첫 번째 검증 사례입니다.
+    </p>
+
+    <div class="operation-list">
+      <a class="operation-row" href="https://iq-proof.github.io" target="_blank" rel="noopener noreferrer" style="--accent-rgb: 0, 217, 255;">
+        <div>
+          <div class="operation-meta">iq-proof</div>
+          <div class="operation-name">IQ Lab Blog</div>
+        </div>
+        <div class="operation-desc">iq-blogger가 deep-dive 문서를 발행 가능한 블로그 포스트로 바꾸는 첫 운영 사례.</div>
+        <div class="operation-status">ACTIVE · 500+ TARGET</div>
+      </a>
+
+      <a class="operation-row" href="https://github.com/e9ua1/leetcode-solutions" target="_blank" rel="noopener noreferrer" style="--accent-rgb: 255, 143, 112;">
+        <div>
+          <div class="operation-meta">leetcode-solutions</div>
+          <div class="operation-name">Learning Notes Repo</div>
+        </div>
+        <div class="operation-desc">iq-leetbuddy가 풀이, 한국어 번역, AI 회고, 풀이 통계를 누적하는 학습 레포.</div>
+        <div class="operation-status">ACTIVE · NOTES ACCRUING</div>
+      </a>
+
+      <div class="operation-row" style="--accent-rgb: 255, 209, 102;">
+        <div>
+          <div class="operation-meta">iq-label sound</div>
+          <div class="operation-name">Indie Music Label</div>
+        </div>
+        <div class="operation-desc">작곡·편곡 자동화 도구가 안정화되면 시작될 음악 운영 시스템.</div>
+        <div class="operation-status">PLANNED</div>
       </div>
     </div>
   </section>
@@ -874,6 +1527,7 @@
     </p>
   </footer>
 
+</main>
 </div>
 
 <!-- Planet info popup -->
@@ -884,233 +1538,749 @@
   <div class="planet-info-status" id="info-status"></div>
 </div>
 
-<script>
-  // Generate stars
-  const starsContainer = document.getElementById('stars');
-  for (let i = 0; i < 80; i++) {
-    const star = document.createElement('div');
-    star.className = 'star';
-    const size = Math.random() * 2 + 0.5;
-    star.style.width = size + 'px';
-    star.style.height = size + 'px';
-    star.style.left = Math.random() * 100 + '%';
-    star.style.top = Math.random() * 100 + '%';
-    star.style.animationDelay = Math.random() * 3 + 's';
-    star.style.opacity = Math.random() * 0.6 + 0.2;
-    starsContainer.appendChild(star);
-  }
+<script type="module">
+  const TAU = Math.PI * 2;
+  const DEG = Math.PI / 180;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  // Shooting stars - random intervals
-  const shootingStarsContainer = document.getElementById('shooting-stars');
-  function spawnShootingStar() {
-    const star = document.createElement('div');
-    star.className = 'shooting-star';
-    // Random starting position (top half of screen)
-    star.style.left = (Math.random() * 60 + 30) + '%';
-    star.style.top = (Math.random() * 30) + '%';
-    star.style.animation = `shoot ${1.5 + Math.random() * 1}s linear forwards`;
-    shootingStarsContainer.appendChild(star);
-
-    // Remove after animation
-    setTimeout(() => star.remove(), 3000);
-  }
-
-  // Spawn shooting star every 4-9 seconds
-  function shootingStarLoop() {
-    spawnShootingStar();
-    const nextDelay = 4000 + Math.random() * 5000;
-    setTimeout(shootingStarLoop, nextDelay);
-  }
-  setTimeout(shootingStarLoop, 2000); // Start after 2s
-
-  // Planets data — orbit assigned to actual rendered orbit ring
   const planets = [
     {
+      key: 'iq-blogger',
       name: 'iq-blogger',
       domain: '텍스트 · 기술 블로그',
       desc: 'Deep-dive 문서를 블로그 포스트로 자동 변환. iq-proof에서 운영 중.',
       status: 'active',
-      animation: 'orbit-1a',  // -90° start
-      orbitRing: 1,           // visible ring (radius 120)
-      size: 14,
+      radius: 3.35,
+      stretch: 0.72,
+      tilt: [-61, 0, -16],
+      speed: 0.34,
+      phase: 0.25,
+      size: 0.38,
       color: '#00d9ff',
+      rgb: '0, 217, 255',
       link: 'https://iq-proof.github.io',
     },
     {
+      key: 'iq-leetbuddy',
       name: 'iq-leetbuddy',
-      domain: '학습 자동화 · LeetCode',
-      desc: 'LeetCode 풀이를 한국어로 번역하고 AI 회고 + GitHub atomic commit. v0.3.4 출하.',
-      status: 'active-coral',
-      animation: 'orbit-1b',  // +90° start (반대편 공전)
-      orbitRing: 1,
-      size: 13,
-      color: '#cc785c',
+      domain: '학습 자동화 · LeetCode 풀이',
+      desc: '풀이를 한국어로 번역하고 AI 회고를 붙여 GitHub에 자동 정리하는 데스크톱 에이전트.',
+      status: 'active',
+      radius: 4.25,
+      stretch: 0.7,
+      tilt: [-66, 0, 14],
+      speed: 0.27,
+      phase: 1.42,
+      size: 0.34,
+      color: '#ff8f70',
+      rgb: '255, 143, 112',
       link: 'https://github.com/iq-agent-lab/iq-leetbuddy/releases/latest',
     },
     {
+      key: 'iq-label',
       name: 'iq-label',
       domain: '음악 · 작곡·편곡',
       desc: '음악 작품 자동 생산 + 큐레이션 레이블 시스템.',
       status: 'planned',
-      animation: 'orbit-2',
-      orbitRing: 2,           // ring at 180
-      size: 11,
-      color: '#6b7280',
+      radius: 5.05,
+      stretch: 0.68,
+      tilt: [-67, 0, 8],
+      speed: 0.21,
+      phase: 2.06,
+      size: 0.29,
+      color: '#ffd166',
+      rgb: '255, 209, 102',
     },
     {
+      key: 'iq-writer',
       name: 'iq-writer',
       domain: '장형 글쓰기 · 소설',
       desc: '소설·에세이 등 서사 콘텐츠 생성. 캐릭터 일관성 관리.',
       status: 'planned',
-      animation: 'orbit-3',
-      orbitRing: 2,           // same ring at 180
-      size: 11,
-      color: '#6b7280',
+      radius: 5.85,
+      stretch: 0.74,
+      tilt: [-57, 0, -30],
+      speed: 0.17,
+      phase: 3.1,
+      size: 0.31,
+      color: '#ff7ab6',
+      rgb: '255, 122, 182',
     },
     {
+      key: 'iq-painter',
       name: 'iq-painter',
       domain: '이미지 · 일러스트',
       desc: '스타일 일관된 비주얼 콘텐츠 생성 시스템.',
       status: 'planned',
-      animation: 'orbit-4',
-      orbitRing: 4,           // ring at 260
-      size: 9,
-      color: '#6b7280',
+      radius: 6.75,
+      stretch: 0.64,
+      tilt: [-70, 0, 22],
+      speed: 0.14,
+      phase: 4.2,
+      size: 0.27,
+      color: '#86efac',
+      rgb: '134, 239, 172',
     },
     {
+      key: 'iq-studio',
       name: 'iq-studio',
       domain: '영상 · 미디어',
       desc: '짧은 영상 콘텐츠 자동 제작. 자막 동기화, 음질 검증.',
       status: 'planned',
-      animation: 'orbit-5',
-      orbitRing: 4,           // same ring at 260
-      size: 9,
-      color: '#6b7280',
+      radius: 7.55,
+      stretch: 0.7,
+      tilt: [-62, 0, -6],
+      speed: 0.115,
+      phase: 5.25,
+      size: 0.3,
+      color: '#60a5fa',
+      rgb: '96, 165, 250',
     },
     {
+      key: 'iq-curator',
       name: 'iq-curator',
       domain: '통합 · 메타 도구',
       desc: '모든 도구의 출력을 큐레이션하고 다중 채널에 발행.',
       status: 'planned',
-      animation: 'orbit-6',
-      orbitRing: 4,           // same ring at 260
-      size: 10,
-      color: '#6b7280',
+      radius: 8.35,
+      stretch: 0.62,
+      tilt: [-73, 0, 34],
+      speed: 0.095,
+      phase: 0.9,
+      size: 0.34,
+      color: '#a78bfa',
+      rgb: '167, 139, 250',
     },
   ];
 
-  // Render planets
-  const planetsContainer = document.getElementById('planets');
-  const solarSystem = document.querySelector('.solar-system');
+  const starsContainer = document.getElementById('stars');
+  for (let i = 0; i < 130; i++) {
+    const star = document.createElement('div');
+    const size = Math.random() * 2.1 + 0.35;
+    star.className = 'star';
+    star.style.width = `${size}px`;
+    star.style.height = `${size}px`;
+    star.style.left = `${Math.random() * 100}%`;
+    star.style.top = `${Math.random() * 100}%`;
+    star.style.animationDelay = `${Math.random() * 3}s`;
+    star.style.opacity = Math.random() * 0.52 + 0.18;
+    starsContainer.appendChild(star);
+  }
 
-  planets.forEach((planet, i) => {
-    const planetEl = document.createElement('div');
-    planetEl.style.position = 'absolute';
-    planetEl.style.top = '50%';
-    planetEl.style.left = '50%';
-    planetEl.style.width = '0';
-    planetEl.style.height = '0';
+  const shootingStarsContainer = document.getElementById('shooting-stars');
+  function spawnShootingStar() {
+    const star = document.createElement('div');
+    star.className = 'shooting-star';
+    star.style.left = `${Math.random() * 64 + 28}%`;
+    star.style.top = `${Math.random() * 34}%`;
+    star.style.animation = `shoot ${1.5 + Math.random() * 1}s linear forwards`;
+    shootingStarsContainer.appendChild(star);
+    setTimeout(() => star.remove(), 3000);
+  }
 
-    // 공전 속도: orbit ring이 같으면 속도 비슷하게, 다른 ring은 외곽일수록 느림
-    const speedBase = planet.orbitRing === 1 ? 36 :
-                      planet.orbitRing === 2 ? 50 : 70;
-    const speedJitter = (i % 3) * 4;
-    planetEl.style.animation = `${planet.animation} ${speedBase + speedJitter}s linear infinite`;
-    planetEl.style.transformOrigin = 'center';
+  function shootingStarLoop() {
+    spawnShootingStar();
+    setTimeout(shootingStarLoop, 4800 + Math.random() * 6200);
+  }
+  if (!reducedMotion) {
+    setTimeout(shootingStarLoop, 1800);
+  }
 
-    // The planet itself (circle)
-    const dot = document.createElement('div');
-    dot.style.position = 'absolute';
-    dot.style.width = planet.size + 'px';
-    dot.style.height = planet.size + 'px';
-    dot.style.borderRadius = '50%';
-    dot.style.background = planet.color;
-    dot.style.transform = 'translate(-50%, -50%)';
-    dot.style.cursor = planet.link ? 'pointer' : 'default';
-    dot.style.transition = 'all 0.2s ease';
+  initCursorLight();
 
-    if (planet.status === 'active' || planet.status === 'active-coral') {
-      dot.style.boxShadow = `0 0 12px ${planet.color}, 0 0 24px ${planet.color}80`;
-    } else {
-      dot.style.opacity = '0.6';
+  try {
+    const THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
+    createSpaceScene(THREE);
+    document.documentElement.dataset.spaceScene = 'ready';
+  } catch (error) {
+    document.documentElement.classList.add('no-webgl');
+    document.documentElement.dataset.spaceScene = 'fallback';
+    console.warn('3D scene failed to load. Fallback orbit enabled.', error);
+  }
+
+  function initCursorLight() {
+    const light = document.getElementById('cursor-light');
+    if (!light || reducedMotion || window.matchMedia('(max-width: 768px)').matches) return;
+
+    let targetX = window.innerWidth / 2;
+    let targetY = window.innerHeight / 2;
+    let currentX = targetX;
+    let currentY = targetY;
+
+    document.addEventListener('mousemove', (event) => {
+      targetX = event.clientX;
+      targetY = event.clientY;
+      light.classList.add('active');
+
+      const target = event.target;
+      const colorHost = target instanceof Element ? target.closest('[style*="--accent-rgb"]') : null;
+      const accent = colorHost ? getComputedStyle(colorHost).getPropertyValue('--accent-rgb').trim() : '';
+      light.style.background = accent
+        ? `radial-gradient(circle at center, rgba(${accent}, 0.18) 0%, rgba(${accent}, 0.055) 42%, transparent 74%)`
+        : '';
+    });
+
+    document.addEventListener('mouseleave', () => {
+      light.classList.remove('active');
+    });
+
+    function animateLight() {
+      currentX += (targetX - currentX) * 0.12;
+      currentY += (targetY - currentY) * 0.12;
+      light.style.transform = `translate(${currentX}px, ${currentY}px) translate(-50%, -50%)`;
+      requestAnimationFrame(animateLight);
     }
+    animateLight();
+  }
 
-    // Planet label
-    const label = document.createElement('div');
-    label.style.position = 'absolute';
-    label.style.top = (planet.size / 2 + 8) + 'px';
-    label.style.left = '50%';
-    label.style.transform = 'translateX(-50%)';
-    label.style.fontSize = '9px';
-    label.style.fontFamily = 'var(--font-mono)';
-    if (planet.status === 'active') {
-      label.style.color = planet.color;
-    } else if (planet.status === 'active-coral') {
-      label.style.color = '#e89578';
-    } else {
-      label.style.color = 'var(--color-text-tertiary)';
-    }
-    label.style.whiteSpace = 'nowrap';
-    label.style.pointerEvents = 'none';
-    label.textContent = planet.name;
-
-    planetEl.appendChild(dot);
-    planetEl.appendChild(label);
-    planetsContainer.appendChild(planetEl);
-
-    // Hover interaction
+  function createSpaceScene(THREE) {
+    const hero = document.querySelector('.hero');
+    const heroCopy = document.querySelector('.hero-copy');
+    const canvas = document.getElementById('space-scene');
+    const labelLayer = document.getElementById('planet-label-layer');
     const infoCard = document.getElementById('planet-info');
-    dot.addEventListener('mouseenter', (e) => {
-      document.getElementById('info-name').textContent = planet.name;
-      document.getElementById('info-domain').textContent = planet.domain;
-      document.getElementById('info-desc').textContent = planet.desc;
-      const statusEl = document.getElementById('info-status');
+    const infoName = document.getElementById('info-name');
+    const infoDomain = document.getElementById('info-domain');
+    const infoDesc = document.getElementById('info-desc');
+    const infoStatus = document.getElementById('info-status');
 
-      if (planet.status === 'active') {
-        statusEl.textContent = '● Active';
-        statusEl.className = 'planet-info-status active';
-      } else if (planet.status === 'active-coral') {
-        statusEl.textContent = '● Active';
-        statusEl.className = 'planet-info-status active-coral';
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.FogExp2(0x02040b, 0.035);
+
+    const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 100);
+    camera.position.set(-0.2, 4.7, 14.2);
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance',
+    });
+    renderer.setClearColor(0x02040b, 0);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.18;
+
+    const root = new THREE.Group();
+    root.rotation.x = -0.1;
+    scene.add(root);
+
+    scene.add(new THREE.AmbientLight(0x6f8cff, 0.42));
+
+    const coreLight = new THREE.PointLight(0xffa37a, 7.5, 40);
+    coreLight.position.set(0, 0, 0);
+    root.add(coreLight);
+
+    const rimLight = new THREE.DirectionalLight(0x70d9ff, 2.1);
+    rimLight.position.set(-6, 7, 8);
+    scene.add(rimLight);
+
+    const violetLight = new THREE.PointLight(0xa78bfa, 2.2, 30);
+    violetLight.position.set(7, -2, -5);
+    scene.add(violetLight);
+
+    const records = [];
+    const pickables = [];
+    const clock = new THREE.Clock();
+    const raycaster = new THREE.Raycaster();
+    const pointer = new THREE.Vector2(9, 9);
+    const drift = { x: 0, y: 0 };
+    const targetDrift = { x: 0, y: 0 };
+    let hoveredRecord = null;
+    let focusedRecord = null;
+
+    createStarfield(THREE, scene);
+    createDustField(THREE, root);
+    createSun(THREE, root);
+
+    const orbitGeometryCache = new Map();
+    planets.forEach((planet) => {
+      const record = createPlanet(THREE, root, planet, orbitGeometryCache);
+      records.push(record);
+      pickables.push(record.hitMesh);
+
+      const label = document.createElement('div');
+      label.className = `planet-label ${planet.status}`;
+      label.textContent = planet.name;
+      label.style.setProperty('--planet-accent', planet.color);
+      labelLayer.appendChild(label);
+      record.label = label;
+
+      const card = document.querySelector(`[data-planet="${planet.key}"]`);
+      if (card) {
+        record.card = card;
+        card.addEventListener('mouseenter', () => setFocusedRecord(record));
+        card.addEventListener('mouseleave', () => setFocusedRecord(null));
+      }
+    });
+
+    canvas.addEventListener('pointermove', (event) => {
+      const rect = canvas.getBoundingClientRect();
+      pointer.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+      pointer.y = -(((event.clientY - rect.top) / rect.height) * 2 - 1);
+      targetDrift.x = pointer.x;
+      targetDrift.y = pointer.y;
+    });
+
+    canvas.addEventListener('pointerleave', () => {
+      pointer.set(9, 9);
+      targetDrift.x = 0;
+      targetDrift.y = 0;
+      setHoveredRecord(null);
+    });
+
+    canvas.addEventListener('click', () => {
+      const record = hoveredRecord;
+      if (record?.planet.link) {
+        window.open(record.planet.link, '_blank', 'noopener,noreferrer');
+      }
+    });
+
+    window.addEventListener('resize', resize);
+    resize();
+    animate();
+
+    function animate() {
+      const elapsed = clock.getElapsedTime();
+      const motion = reducedMotion ? 0 : 1;
+
+      drift.x += (targetDrift.x - drift.x) * 0.04;
+      drift.y += (targetDrift.y - drift.y) * 0.04;
+      camera.position.x = -0.2 + drift.x * 0.42;
+      camera.position.y = 4.7 + drift.y * 0.28;
+      camera.lookAt(root.position.x * 0.42, -0.12, 0);
+
+      root.rotation.y = Math.sin(elapsed * 0.08) * 0.045 + drift.x * 0.018;
+
+      records.forEach((record, index) => {
+        const { planet, mesh, hitMesh, halo, moonPivot, orbitLine } = record;
+        const angle = planet.phase + elapsed * planet.speed * motion;
+        const position = orbitPoint(THREE, planet, angle);
+        record.group.position.copy(position);
+        mesh.rotation.y += (0.006 + index * 0.0015) * motion;
+        hitMesh.position.copy(position);
+        hitMesh.scale.setScalar(record.isHighlighted ? 1.65 : 1);
+
+        if (moonPivot) {
+          moonPivot.rotation.y += 0.027 * motion;
+          moonPivot.rotation.z = Math.sin(elapsed * 0.7) * 0.15;
+        }
+
+        halo.material.opacity += ((record.isHighlighted ? 0.72 : planet.status === 'active' ? 0.36 : 0.16) - halo.material.opacity) * 0.08;
+        halo.scale.setScalar((record.isHighlighted ? 1.95 : 1.42) * planet.size);
+        orbitLine.material.opacity += ((record.isHighlighted ? 0.72 : planet.status === 'active' ? 0.28 : 0.14) - orbitLine.material.opacity) * 0.08;
+      });
+
+      root.updateMatrixWorld(true);
+      camera.updateMatrixWorld();
+      records.forEach(updateLabel);
+      updateRaycast();
+      const activeRecord = hoveredRecord || focusedRecord;
+      if (activeRecord && hoveredRecord) {
+        positionInfoCard(activeRecord);
+      }
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate);
+    }
+
+    function updateRaycast() {
+      raycaster.setFromCamera(pointer, camera);
+      const intersections = raycaster.intersectObjects(pickables, false);
+      const next = intersections.length ? intersections[0].object.userData.record : null;
+      setHoveredRecord(next);
+      canvas.style.cursor = next?.planet.link ? 'pointer' : next ? 'crosshair' : 'grab';
+    }
+
+    function setHoveredRecord(record) {
+      if (hoveredRecord === record) return;
+      hoveredRecord = record;
+      syncHighlights();
+      if (record) {
+        showInfo(record);
       } else {
-        statusEl.textContent = '○ Planned';
-        statusEl.className = 'planet-info-status planned';
+        infoCard.classList.remove('visible');
       }
+    }
 
-      const rect = dot.getBoundingClientRect();
-      infoCard.style.left = rect.left + rect.width / 2 + 'px';
-      infoCard.style.top = rect.top + 'px';
-      infoCard.classList.add('visible');
+    function setFocusedRecord(record) {
+      if (focusedRecord === record) return;
+      focusedRecord = record;
+      syncHighlights();
+    }
 
-      if (planet.status === 'active' || planet.status === 'active-coral') {
-        dot.style.transform = 'translate(-50%, -50%) scale(1.5)';
-      }
-
-      // Highlight the orbit ring
-      const ring = document.querySelector(`.orbit-ring[data-orbit="${planet.orbitRing}"]`);
-      if (ring) {
-        const cls = planet.status === 'active' ? 'highlighted' : 'highlighted-coral';
-        ring.classList.add(cls);
-      }
-    });
-
-    dot.addEventListener('mouseleave', () => {
-      infoCard.classList.remove('visible');
-      dot.style.transform = 'translate(-50%, -50%)';
-
-      // Remove orbit highlight
-      const ring = document.querySelector(`.orbit-ring[data-orbit="${planet.orbitRing}"]`);
-      if (ring) {
-        ring.classList.remove('highlighted', 'highlighted-coral');
-      }
-    });
-
-    if (planet.link) {
-      dot.addEventListener('click', () => {
-        window.open(planet.link, '_blank');
+    function syncHighlights() {
+      records.forEach((record) => {
+        const isHighlighted = record === hoveredRecord || record === focusedRecord;
+        record.isHighlighted = isHighlighted;
+        record.label.classList.toggle('focused', isHighlighted);
+        record.card?.classList.toggle('is-focused', isHighlighted);
+        record.orbitLine.material.color.set(isHighlighted ? record.planet.color : '#ffffff');
       });
     }
-  });
+
+    function showInfo(record) {
+      const { planet } = record;
+      infoName.textContent = planet.name;
+      infoDomain.textContent = planet.domain;
+      infoDesc.textContent = planet.desc;
+      infoStatus.textContent = planet.status === 'active' ? '● Active' : '○ Planned';
+      infoStatus.className = `planet-info-status ${planet.status}`;
+      infoCard.style.setProperty('--planet-accent', planet.color);
+      positionInfoCard(record);
+      infoCard.classList.add('visible');
+    }
+
+    function positionInfoCard(record) {
+      if (window.matchMedia('(max-width: 640px)').matches) {
+        infoCard.style.left = '1rem';
+        infoCard.style.right = '1rem';
+        infoCard.style.top = 'auto';
+        infoCard.style.bottom = '1rem';
+        return;
+      }
+
+      const screen = projectToScreen(record.group.position);
+      const left = clamp(screen.x, 160, window.innerWidth - 160);
+      const top = clamp(screen.y - 26, 120, window.innerHeight - 24);
+      infoCard.style.left = `${left}px`;
+      infoCard.style.top = `${top}px`;
+      infoCard.style.right = 'auto';
+      infoCard.style.bottom = 'auto';
+    }
+
+    function updateLabel(record) {
+      const screen = projectToScreen(record.group.position);
+      const depth = clamp(1 - screen.z * 0.45, 0.28, 1);
+      const copyRect = heroCopy.getBoundingClientRect();
+      const overlapsCopy =
+        screen.x > copyRect.left - 18 &&
+        screen.x < copyRect.right + 18 &&
+        screen.y > copyRect.top - 20 &&
+        screen.y < copyRect.bottom + 20;
+      const scale = clamp(0.72 + depth * 0.42 + (record.isHighlighted ? 0.12 : 0), 0.72, 1.22);
+      record.label.style.opacity = screen.z < 1 ? String(overlapsCopy ? 0 : depth) : '0';
+      record.label.style.transform = `translate(-50%, -50%) translate(${screen.x}px, ${screen.y - 26}px) scale(${scale})`;
+      record.label.style.zIndex = String(Math.round(1200 - screen.z * 500));
+    }
+
+    function projectToScreen(position) {
+      const rect = canvas.getBoundingClientRect();
+      const vector = position.clone();
+      root.localToWorld(vector);
+      vector.project(camera);
+      return {
+        x: rect.left + (vector.x * 0.5 + 0.5) * rect.width,
+        y: rect.top + (-vector.y * 0.5 + 0.5) * rect.height,
+        z: vector.z,
+      };
+    }
+
+    function resize() {
+      const width = hero.clientWidth;
+      const height = hero.clientHeight;
+      renderer.setSize(width, height, false);
+      camera.aspect = width / height;
+      camera.updateProjectionMatrix();
+      root.position.set(width < 760 ? 0.9 : 2.05, width < 760 ? -1.35 : -0.15, 0);
+    }
+  }
+
+  function createStarfield(THREE, scene) {
+    const count = 1500;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const palette = ['#ffffff', '#bceeff', '#ffd9c7', '#d8c8ff'];
+    const color = new THREE.Color();
+
+    for (let i = 0; i < count; i++) {
+      const radius = 24 + Math.random() * 58;
+      const theta = Math.random() * TAU;
+      const phi = Math.acos(2 * Math.random() - 1);
+      positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+      positions[i * 3 + 1] = radius * Math.cos(phi) * 0.72;
+      positions[i * 3 + 2] = radius * Math.sin(phi) * Math.sin(theta) - 16;
+
+      color.set(palette[Math.floor(Math.random() * palette.length)]);
+      const intensity = 0.55 + Math.random() * 0.45;
+      colors[i * 3] = color.r * intensity;
+      colors[i * 3 + 1] = color.g * intensity;
+      colors[i * 3 + 2] = color.b * intensity;
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.PointsMaterial({
+      size: 0.045,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.9,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+
+    scene.add(new THREE.Points(geometry, material));
+  }
+
+  function createDustField(THREE, root) {
+    const count = 850;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const color = new THREE.Color();
+
+    for (let i = 0; i < count; i++) {
+      const radius = 2.4 + Math.random() * 7.6;
+      const angle = Math.random() * TAU;
+      const height = (Math.random() - 0.5) * 0.42;
+      positions[i * 3] = Math.cos(angle) * radius;
+      positions[i * 3 + 1] = height;
+      positions[i * 3 + 2] = Math.sin(angle) * radius * (0.56 + Math.random() * 0.22);
+      new THREE.Vector3(positions[i * 3], positions[i * 3 + 1], positions[i * 3 + 2])
+        .applyEuler(new THREE.Euler(-64 * DEG, 0, -10 * DEG))
+        .toArray(positions, i * 3);
+
+      color.set(Math.random() > 0.45 ? '#00d9ff' : '#ff8f70');
+      const intensity = 0.18 + Math.random() * 0.35;
+      colors[i * 3] = color.r * intensity;
+      colors[i * 3 + 1] = color.g * intensity;
+      colors[i * 3 + 2] = color.b * intensity;
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    root.add(new THREE.Points(geometry, new THREE.PointsMaterial({
+      size: 0.035,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.8,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })));
+  }
+
+  function createSun(THREE, root) {
+    const sunGroup = new THREE.Group();
+    root.add(sunGroup);
+
+    const core = new THREE.Mesh(
+      new THREE.SphereGeometry(0.86, 64, 64),
+      new THREE.MeshBasicMaterial({ color: 0xff8f70 })
+    );
+    sunGroup.add(core);
+
+    const inner = new THREE.Mesh(
+      new THREE.SphereGeometry(1.08, 64, 64),
+      new THREE.MeshBasicMaterial({
+        color: 0xffc38f,
+        transparent: true,
+        opacity: 0.28,
+        blending: THREE.AdditiveBlending,
+      })
+    );
+    sunGroup.add(inner);
+
+    const coronaTexture = makeGlowTexture(THREE, 'rgba(255, 143, 112, 0.9)', 'rgba(255, 143, 112, 0)');
+    const corona = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: coronaTexture,
+      color: 0xffffff,
+      transparent: true,
+      opacity: 0.82,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }));
+    corona.scale.set(6.2, 6.2, 1);
+    sunGroup.add(corona);
+
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: coronaTexture,
+      color: 0x00d9ff,
+      transparent: true,
+      opacity: 0.16,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }));
+    halo.scale.set(10, 10, 1);
+    sunGroup.add(halo);
+  }
+
+  function createPlanet(THREE, root, planet, cache) {
+    const group = new THREE.Group();
+    root.add(group);
+
+    const orbitLine = createOrbitLine(THREE, planet, cache);
+    root.add(orbitLine);
+
+    const texture = makePlanetTexture(THREE, planet.color, planet.status === 'active' ? '#ffffff' : '#d7e2ff');
+    const material = new THREE.MeshStandardMaterial({
+      map: texture,
+      color: planet.color,
+      roughness: 0.78,
+      metalness: 0.08,
+      emissive: planet.color,
+      emissiveIntensity: planet.status === 'active' ? 0.45 : 0.09,
+    });
+
+    const mesh = new THREE.Mesh(new THREE.SphereGeometry(planet.size, 48, 48), material);
+    group.add(mesh);
+
+    const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+      map: makeGlowTexture(THREE, hexToRgba(planet.color, 0.88), hexToRgba(planet.color, 0)),
+      color: 0xffffff,
+      transparent: true,
+      opacity: planet.status === 'active' ? 0.36 : 0.16,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    }));
+    glow.scale.setScalar(planet.size * 1.42);
+    group.add(glow);
+
+    const hitMesh = new THREE.Mesh(
+      new THREE.SphereGeometry(Math.max(planet.size * 2.4, 0.72), 16, 16),
+      new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false })
+    );
+    hitMesh.userData.record = null;
+    root.add(hitMesh);
+
+    let moonPivot = null;
+    if (planet.status === 'active') {
+      moonPivot = new THREE.Group();
+      const moon = new THREE.Mesh(
+        new THREE.SphereGeometry(0.08, 18, 18),
+        new THREE.MeshStandardMaterial({
+          color: 0xe9fbff,
+          emissive: 0x00d9ff,
+          emissiveIntensity: 0.35,
+        })
+      );
+      moon.position.set(0.72, 0.08, 0);
+      moonPivot.add(moon);
+      group.add(moonPivot);
+    }
+
+    if (planet.key === 'iq-curator') {
+      const ring = new THREE.Mesh(
+        new THREE.TorusGeometry(planet.size * 1.35, 0.018, 8, 96),
+        new THREE.MeshBasicMaterial({
+          color: planet.color,
+          transparent: true,
+          opacity: 0.44,
+          blending: THREE.AdditiveBlending,
+        })
+      );
+      ring.rotation.x = 72 * DEG;
+      group.add(ring);
+    }
+
+    const record = { planet, group, mesh, hitMesh, halo: glow, orbitLine, moonPivot, isHighlighted: false };
+    hitMesh.userData.record = record;
+    return record;
+  }
+
+  function createOrbitLine(THREE, planet, cache) {
+    const key = `${planet.radius}-${planet.stretch}-${planet.tilt.join(',')}`;
+    let geometry = cache.get(key);
+    if (!geometry) {
+      const points = [];
+      const euler = new THREE.Euler(planet.tilt[0] * DEG, planet.tilt[1] * DEG, planet.tilt[2] * DEG, 'XYZ');
+      for (let i = 0; i < 256; i++) {
+        const angle = (i / 256) * TAU;
+        points.push(new THREE.Vector3(
+          Math.cos(angle) * planet.radius,
+          0,
+          Math.sin(angle) * planet.radius * planet.stretch
+        ).applyEuler(euler));
+      }
+      geometry = new THREE.BufferGeometry().setFromPoints(points);
+      cache.set(key, geometry);
+    }
+
+    return new THREE.LineLoop(geometry, new THREE.LineBasicMaterial({
+      color: '#ffffff',
+      transparent: true,
+      opacity: planet.status === 'active' ? 0.28 : 0.14,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+    }));
+  }
+
+  function orbitPoint(THREE, planet, angle) {
+    return new THREE.Vector3(
+      Math.cos(angle) * planet.radius,
+      0,
+      Math.sin(angle) * planet.radius * planet.stretch
+    ).applyEuler(new THREE.Euler(planet.tilt[0] * DEG, planet.tilt[1] * DEG, planet.tilt[2] * DEG, 'XYZ'));
+  }
+
+  function makeGlowTexture(THREE, inner, outer) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+    gradient.addColorStop(0, inner);
+    gradient.addColorStop(0.32, inner);
+    gradient.addColorStop(0.72, outer);
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 256, 256);
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+  }
+
+  function makePlanetTexture(THREE, base, accent) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 256;
+    canvas.height = 128;
+    const ctx = canvas.getContext('2d');
+    const gradient = ctx.createLinearGradient(0, 0, 256, 128);
+    gradient.addColorStop(0, shadeHex(base, -34));
+    gradient.addColorStop(0.48, base);
+    gradient.addColorStop(1, shadeHex(accent, -18));
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 256, 128);
+
+    for (let y = 0; y < 128; y += 6 + Math.random() * 10) {
+      ctx.fillStyle = hexToRgba(Math.random() > 0.5 ? accent : '#ffffff', 0.04 + Math.random() * 0.1);
+      ctx.fillRect(0, y, 256, 1 + Math.random() * 5);
+    }
+
+    for (let i = 0; i < 420; i++) {
+      ctx.fillStyle = hexToRgba('#ffffff', Math.random() * 0.08);
+      ctx.fillRect(Math.random() * 256, Math.random() * 128, 1, 1);
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.colorSpace = THREE.SRGBColorSpace;
+    return texture;
+  }
+
+  function hexToRgba(hex, alpha) {
+    const value = hex.replace('#', '');
+    const bigint = parseInt(value.length === 3 ? value.split('').map((v) => v + v).join('') : value, 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  function shadeHex(hex, amount) {
+    const value = hex.replace('#', '');
+    const bigint = parseInt(value.length === 3 ? value.split('').map((v) => v + v).join('') : value, 16);
+    const r = clamp(((bigint >> 16) & 255) + amount, 0, 255);
+    const g = clamp(((bigint >> 8) & 255) + amount, 0, 255);
+    const b = clamp((bigint & 255) + amount, 0, 255);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
 </script>
 
 </body>
